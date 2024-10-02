@@ -1,9 +1,8 @@
-import telebot, sqlite3
-import messages
+import telebot
+import messages, sql, orderCall
 
 bot = telebot.TeleBot('7621236265:AAGs2_RbavfCZxKYQP2mLtiEYVTrcgzqNOk')
-connection = sqlite3.connection("TDM.db")
-cursor = connection.cursor()
+db = sql.db('TDM.db')
 
 class Messages:
     @bot.message_handler(commands=['start', 'info', 'help'])
@@ -18,11 +17,18 @@ class Messages:
             case _:
                 print("[log] Неизвестная команда")
 
+    @bot.message_handler(func=lambda message: message.text.lower() == 'заказать звонок')
+    def handleOrderCall(message):
+        orderCall.handleOrderCall(message)
+
     @bot.message_handler(content_types = ['text'])
     def messaging(message):
         messages.usr_msg(message)
 
+    @bot.message_handler(content_types=['contact'])
+    def handleContact(message):
+        orderCall.handleContact(message)
+
 if __name__ == '__main__':
     print("[log] Запуск готов")
     bot.polling(none_stop=True)
-    connection.close()

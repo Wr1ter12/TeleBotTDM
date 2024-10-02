@@ -8,11 +8,11 @@ class db:
         self.connection = sqlite3.connect(db, check_same_thread=False)
         self.cursor = self.connection.cursor()
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(50), email VARCHAR(100), phone VARCHAR(20));')
-        self.cursor.execute('CREATE TABLE IF NOT EXISTS phone_numbers (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, username, phoneNumber VARCHAR(20))')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS phoneNumbers (id INTEGER PRIMARY KEY AUTOINCREMENT, userID INTEGER, username VARCHAR(50), phoneNumber VARCHAR(20))')
         self.connection.commit()
 
     def phoneBook(self, userID, username, phoneNumber):
-        self.cursor.execute("INSERT INTO phone_numbers (userID, name, phoneNumber) VALUES (?, ?, ?)", (userID, username, phoneNumber))
+        self.cursor.execute("INSERT INTO phoneNumbers (userID, username, phoneNumber) VALUES (?, ?, ?)", (userID, username, phoneNumber))
         self.connection.commit()
         
     def example(self):
