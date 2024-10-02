@@ -25,3 +25,4 @@ class Messages:
 if __name__ == '__main__':
     print("[log] Запуск готов")
     bot.polling(none_stop=True)
+    connection.close()
