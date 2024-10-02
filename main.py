@@ -1,7 +1,9 @@
-import telebot
+import telebot, sqlite3
 import messages
 
 bot = telebot.TeleBot('7621236265:AAGs2_RbavfCZxKYQP2mLtiEYVTrcgzqNOk')
+connection = sqlite3.connection("TDM.db")
+cursor = connection.cursor()
 
 class Messages:
     @bot.message_handler(commands=['start', 'info', 'help'])
