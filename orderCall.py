@@ -11,8 +11,6 @@ class CallOrder:
     def handleOrderCall(self, message):
         self.Menu.phoneKeyboard(message)
 
-        self.bot.send_message(message.chat.id, "Пожалуйста, отправьте ваш номер телефона", reply_markup=markup)
-
     def handleContact(self, message):
         userID = message.from_user.id
         username = message.from_user.username
