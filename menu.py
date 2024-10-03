@@ -15,7 +15,7 @@ class Menu:
 
         self.bot.send_message(message.chat.id, "Выберите одну из опций:", reply_markup=keyboard)
 
-    def phoneKeyboard(message):
+    def phoneKeyboard(self):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item = types.KeyboardButton('Отправить номер телефона', request_contact=True)
         markup.add(item)

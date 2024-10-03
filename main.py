@@ -20,10 +20,13 @@ class Main:
         match message.text:
             case "/start":
                 messages.start(message)
+                menu.showMainMenu(message)
             case "/info":
                 messages.info(message)
+                menu.showMainMenu(message)
             case "/help":
                 messages.help(message)
+                menu.showMainMenu(message)
             case "/request":
                 request.request(message)
             case _:
