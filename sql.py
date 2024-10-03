@@ -1,8 +1,5 @@
 import sqlite3
 
-"""connection = sqlite3.connect("TDM.db", check_same_thread=False)
-cursor = connection.cursor()"""
-
 class db:
     def __init__(self, db):
         self.connection = sqlite3.connect(db, check_same_thread=False)

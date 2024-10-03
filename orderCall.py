@@ -6,7 +6,7 @@ def handleOrderCall(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item = types.KeyboardButton('Отправить номер телефона', request_contact=True)
     markup.add(item)
-
+    
     from main import bot
     bot.send_message(message.chat.id, "Пожалуйста, отправьте ваш номер телефона", reply_markup=markup)
 
@@ -17,7 +17,7 @@ def handleContact(message):
 
     from main import bot, db
     db.phoneBook(userID, username, phoneNumber)
-    bot.send_message(chatID, f"Новый запрос на звонок от пользователя {message.from_user.first_name}: {phoneNumber}")
+    bot.send_message(message.chat.id, f"Новый запрос на звонок от пользователя {message.from_user.first_name}: {phoneNumber}")
 
     bot.send_message(message.chat.id, "Спасибо! Ваш запрос на звонок принят.")
 
