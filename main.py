@@ -53,9 +53,9 @@ class Main:
     def handleCallbackQuery(call):
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
         if call.data == 'leave_request':
-            handleRequest(call.message)
+            Main.handleRequest(call.message)
         elif call.data == 'order_call':
-            handleOrderCall(call.message)
+            Main.handleOrderCall(call.message)
         elif call.data == 'information':
             messages.info(message)
 
