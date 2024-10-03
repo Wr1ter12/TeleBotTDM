@@ -12,7 +12,7 @@ db = sql.db('TDM.db')
 messages = Messages(bot)
 menu = Menu(bot)
 orderCall = CallOrder(bot, db, menu)
-request = Requests(bot, db)
+request = Requests(bot, db, menu)
 
 class Main:
     @bot.message_handler(commands=['start', 'info', 'help','request'])
@@ -39,10 +39,12 @@ class Main:
     @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15)
     def handleManualPhoneNumber(message):
         orderCall.handleManualPhoneNumber(message)
+        menu.showMainMenu(message)
 
     @bot.message_handler(content_types=['contact'])
     def handleContact(message):
         orderCall.handleContact(message)
+        menu.showMainMenu(message)
 
     @bot.message_handler(func=lambda message: message.text.lower() == 'оставить заявку')
     def handleRequest(message):
@@ -57,7 +59,8 @@ class Main:
         elif call.data == 'order_call':
             Main.handleOrderCall(call.message)
         elif call.data == 'information':
-            messages.info(message)
+            messages.info(call.message)
+            menu.showMainMenu(call.message)
 
     @bot.message_handler(content_types = ['text'])
     def messaging(message):
@@ -72,6 +75,7 @@ class Main:
                 messages.bot.send_message(message.chat.id, "Ваше сообщение отправлено! Мы свяжемся с вами.")
             case _:
                 messages.usr_msg(message)
+        menu.showMainMenu(message)
 
 if __name__ == '__main__':
     print("[log] Запуск готов")
