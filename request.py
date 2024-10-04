@@ -8,19 +8,21 @@ class Requests:
         self.usrPhone = " "
         self.usrName = " "
         self.usrClient = " "
+        self.usrChoice = " "
+        self.usrNeedPack = " "
+        self.usrSendToPlace = " "
+        self.usrSendDate = " "
+        self.usrWishes = " "
+        self.usrReference = " "
 
-    def msgStr(self, message):
-        return message.text()
-    
     def request(self, message):
         msg = self.bot.reply_to(message, "Пожалуйста, введите ваше имя.")
         return msg
 
     def userName(self, message):
         self.usrName = message.text
-        msg = self.bot.reply_to(message, "Введите ваш номер телефона.")
         self.Main.handleOrderCall(message)
-        self.bot.register_next_step_handler(msg, self.Main.handleRequestSec)
+        self.bot.register_next_step_handler(message, self.Main.handleRequestSec)
 
     def userPhoneNumber(self, message):
         if message.text == None:
@@ -41,16 +43,126 @@ class Requests:
         else:
             self.usrClient = "Нет"
         msg = self.bot.reply_to(message, "Что вас интересует: продукция или услуга?")
-        self.db.requestDb(self.usrName, self.usrEmail, self.usrPhone, self.usrClient)
         self.bot.register_next_step_handler(msg, self.Main.handleRequestFifth)
 
-    def productsSelection(self,message):
-        pass
-        '''msg = message.text.lower()
-        #print(msg)
-        if msg == "продукция":
-            self.bot.send_message("Категория продукции")
-        elif msg == "услуга":
-            self.bot.send_message("Виды услуг")
+    def productsSelection(self, message):
+        msg = message.text
+        if msg.lower() == "продукция":
+            self.bot.send_message(message.chat.id, ''' Категория продукции: 
+        1.1 Игровые комплексы
+        1.2 МАФы
+        1.3 Профнастил
+        1.4 Штакетник металлический
+        1.5 Металлоконструкции
+        1.6 Изготовление под заказ
+            1.6.1 Перфорация листов
+            1.6.2 Фасадные кассеты''')
+            self.bot.register_next_step_handler(message, self.Main.handleRequestProductsCategories)
+        elif msg.lower() == "услуга":
+            self.bot.send_message(message.chat.id, '''
+                Виды услуг:
+                ◦ Сварочные работы с черным, цветным металлом
+                                (дуговая сварка, 
+                                сварка в защитных средах,
+                                контактная сварка)
+                ◦ Изготовление металлоконструкций
+                                Надежные конструкции для строительства,
+                                благоустройства территорий, возведения
+                                промышленных и дорожных сооружений.
+                ◦ Покраска
+                                Мы предлагаем несколько видов покраски
+                                - порошковое покрытие, декоративное
+                                покрытие, цинкование.
+                ◦ Ленточнопильная резка металла до 300 мм
+                ◦ Сверление
+                                Спиральное сверление,
+                                корончатое сверление,
+                                термическое сверление, зенкование,
+                                нарезание резьбы
+                ◦ Гибка металла
+                                Cоздание разнопольных уголков, профилей.
+                                Гибка профильных труб, круглых труб,
+                                Вальцевание листового металла,
+                                в том числе конусное. 
+                ◦ Лазерная резка листового металла
+                                Перфорирование, художественная резка,
+                                резка по размерам
+                                толщина обрабатываемого
+                                материала от 1мм до 10мм.
+                ◦ Лазерная резка труб и профилей
+                                Перфорирование, резка по параметрам.
+                ◦ Дополнительные услуги
+                                Разработка и/или доработка разверток,
+                                разработка и доработка конструкторской
+                                документации по Вашим эскизам,
+                                чертежам и ТЗ (техническим заданиям).''')
+            self.bot.register_next_step_handler(message, self.Main.handleRequestTypeOfServices)
+
         else:
-            self.bot.send_message("что то пошло не по плану")'''
+            self.bot.send_message(message.chat.id, "Что то пошло не по плану")
+
+    def typeOfServices(self, message):
+        self.usrChoice += "Услуга: " + message.text
+
+        self.bot.send_message(message.chat.id, "Хотите загрузить какой-либо файл? Например, техническую документацию или чертеж?")
+        self.bot.register_next_step_handler(message, self.Main.handleRequestSendToObj)
+       
+    def productsCategories(self, message):
+        self.usrChoice += "Категория продукции: " + message.text
+        
+        self.bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)")
+        self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking)
+
+    def needPacking(self,message):
+        self.usrNeedPack = message.text
+        self.bot.send_message(message.chat.id, "Нужна ли доставка на объект? (Да/Нет)")
+        self.bot.register_next_step_handler(message, self.Main.handleRequestNeedSend)
+
+    def needSend(self,message):
+        if message.text.lower() == "да":
+            self.bot.send_message(message.chat.id, "Введите адрес доставки:")
+            self.bot.register_next_step_handler(message, self.Main.handleRequestSendAddress)
+        else:
+            self.bot.send_message(message.chat.id, "Хотите загрузить какой-либо файл? Например, техническую документацию или чертеж?")
+            self.bot.register_next_step_handler(message, self.Main.handleRequestSendToObj)
+
+    def sendAddress(self, message):
+        self.usrSendToPlace = message.text
+        self.bot.send_message(message.chat.id, "Введите дату доставки:")
+        self.bot.register_next_step_handler(message, self.Main.handleRequestSendDate)
+
+    def sendDate(self,message):
+        self.usrSendDate = message.text
+        self.bot.send_message(message.chat.id, "Хотите загрузить какой-либо файл? Например, техническую документацию или чертеж?")
+        self.bot.register_next_step_handler(message, self.Main.handleRequestSendToObj)
+
+    def saveFile(self,message):
+        try:
+            if message.text.lower() != "нет":
+                if message.document != None:
+                    fileInfo = self.bot.get_file(message.document.file_id)
+                    downloadedFile = self.bot.download_file(fileInfo.file_path)
+
+                    src = self.Main.currentDir + '\\ДокументыПользователей\\' + message.document.file_name;
+                    with open(src, 'wb') as new_file:
+                        new_file.write(downloadedFile)
+                else:
+                    fileInfo = self.bot.get_file(message.photo[len(message.photo) - 1].file_id)
+                    downloadedFile = self.bot.download_file(fileInfo.file_path)
+
+                    src = self.Main.currentDir + '\\ДокументыПользователей\\' + fileInfo.file_path
+                    with open(src, 'wb') as new_file:
+                        new_file.write(downloadedFile)
+                self.usrReference = src
+        except Exception as e:
+            print("[log] " + str(e))
+            self.bot.send_message(message.chat.id, "Не удалось загрузить ваш файл")
+        self.bot.send_message(message.chat.id, "Вы можете ввести пожелания или комментарии")
+        self.bot.register_next_step_handler(message, self.Main.handleRequestWishes)
+        
+    def saveWishes(self, message):
+        self.usrWishes = message.text
+        self.db.requestDb(self.usrName, self.usrEmail, self.usrPhone, self.usrClient, self.usrChoice, self.usrNeedPack, self.usrSendToPlace, self.usrSendDate, self.usrReference, self.usrWishes)
+
+
+

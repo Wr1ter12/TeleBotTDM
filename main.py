@@ -5,6 +5,10 @@ from request import Requests
 from messages import Messages
 from orderCall import CallOrder
 from menu import Menu
+from os import getcwd, mkdir, path
+
+if not path.isdir('ДокументыПользователей//photos'):
+    mkdir("ДокументыПользователей//photos")
 
 bot = telebot.TeleBot('7621236265:AAGs2_RbavfCZxKYQP2mLtiEYVTrcgzqNOk')
 db = sql.db('TDM.db')
@@ -15,6 +19,7 @@ orderCall = CallOrder(bot, db, menu)
 
 class Main:
     req_bool = False
+    currentDir = getcwd()
     @bot.message_handler(commands=['start', 'info', 'help','request'])
     def commands(message):
         match message.text:
@@ -54,6 +59,30 @@ class Main:
     @bot.message_handler(func=lambda message: message.text.lower() == "продукция" or message.text.lower() == "услуга")
     def handleRequestFifth(message):
         request.productsSelection(message)
+
+    def handleRequestTypeOfServices(message):
+        request.typeOfServices(message)
+
+    def handleRequestProductsCategories(message):
+        request.productsCategories(message)
+
+    def handleRequestNeedPacking(message):
+        request.needPacking(message)
+
+    def handleRequestNeedSend(message):
+        request.needSend(message)
+
+    def handleRequestSendAddress(message):
+        request.sendAddress(message)
+    
+    def handleRequestSendDate(message):
+        request.sendDate(message)
+
+    def handleRequestSendToObj(message):
+        request.saveFile(message)
+
+    def handleRequestWishes(message):
+        request.saveWishes(message)
 
     @bot.message_handler(func=lambda message: message.text.lower() == 'заказать звонок')
     def handleOrderCall(message):
@@ -98,9 +127,12 @@ class Main:
             case 'обратная связь':
                 messages.bot.send_message(message.chat.id, "Ваше сообщение отправлено! Мы свяжемся с вами.")
             case _:
-                messages.usr_msg(message)
+                if Main.req_bool == False:
+                    messages.bot.send_message(message.chat.id, "Не удалось обработать ваше сообщение, воспользуйтесь предоставленными функциями.")
+                else:
+                    messages.usr_msg(message)
         menu.showMainMenu(message)
-
+        
 request = Requests(bot, db, menu, Main)
 
 if __name__ == '__main__':

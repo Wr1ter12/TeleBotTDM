@@ -21,4 +21,4 @@ class Menu:
         markup.add(item)
 
         self.bot.send_message(message.chat.id, "Пожалуйста, отправьте ваш номер телефона", reply_markup=markup)
-    
+
