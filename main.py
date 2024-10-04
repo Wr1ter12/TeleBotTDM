@@ -21,11 +21,17 @@ menu = Menu(bot)
 orderCall = CallOrder(bot, db, menu)
 
 class Main:
-    req_bool = False
-    call_bool = False
+    users = {}
     currentDir = getcwd()
+
+    def userAdd(userID):
+        userID = str(userID)
+        if userID not in Main.users.keys():
+            Main.users[userID] = [False, False]
+    
     @bot.message_handler(commands=['start', 'info', 'help', 'request'])
     def commands(message):
+        Main.userAdd(message.from_user.username)
         match message.text:
             case "/start":
                 messages.start(message)
@@ -43,7 +49,8 @@ class Main:
 
     @bot.message_handler(func=lambda message: message.text.lower() == 'оставить заявку')
     def handleRequest(message):
-        Main.req_bool = True
+        Main.userAdd(message.from_user.username)
+        Main.users[str(message.from_user.username)][0] = True
         msg = request.request(message)
         bot.register_next_step_handler(msg, request.userName)
 
@@ -88,16 +95,18 @@ class Main:
 
     @bot.message_handler(func=lambda message: message.text.lower() == 'заказать звонок')
     def handleOrderCall(message):
-        Main.call_bool = True
+        Main.userAdd(message.from_user.username)
+        Main.users[str(message.from_user.username)][1] = True
         orderCall.handleOrderCall(message)
 
     @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15)
     def handleManualPhoneNumber(message):
-        if Main.req_bool == False:
-            if Main.call_bool == True:
+        Main.userAdd(message.from_user.username)
+        if Main.users[str(message.from_user.username)][0] == False:
+            if Main.users[str(message.from_user.username)][1] == True:
                 orderCall.handleManualPhoneNumber(message)
                 menu.showMainMenu(message)
-                Main.call_bool = False
+                Main.users[str(message.from_user.username)][1] = False
             else:
                 bot.send_message(message.chat.id, "Не удалось обработать ваше сообщение, воспользуйтесь предоставленными функциями.")
                 menu.showMainMenu(message)
@@ -106,10 +115,11 @@ class Main:
 
     @bot.message_handler(content_types=['contact'])
     def handleContact(message):
-        if Main.req_bool == False:
+        Main.userAdd(message.from_user.username)
+        if Main.users[str(message.from_user.username)][0] == False:
             orderCall.handleContact(message)
             menu.showMainMenu(message)
-            Main.call_bool = False
+            Main.users[str(message.from_user.username)][1] = False
         else:
             Main.handleRequestSec(message)
 
@@ -122,10 +132,12 @@ class Main:
             Main.handleOrderCall(call.message)
         elif call.data == 'information':
             messages.info(call.message)
+            Main.userAdd(call.message.from_user.username)
             menu.showMainMenu(call.message)
 
     @bot.message_handler(content_types = ['text'])
     def messaging(message):
+        Main.userAdd(message.from_user.username)
         match message.text.lower():
             case 'инфо':
                 messages.info(message)
@@ -136,7 +148,7 @@ class Main:
             case 'обратная связь':
                 bot.send_message(message.chat.id, "Свяжитесь с нами по номеру +7 (495) 927 95 17.")
             case _:
-                if Main.req_bool == False:
+                if Main.users[str(message.from_user.username)][0] == False:
                     bot.send_message(message.chat.id, "Не удалось обработать ваше сообщение, воспользуйтесь предоставленными функциями.")
                 else:
                     messages.usr_msg(message)
