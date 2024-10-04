@@ -7,8 +7,10 @@ from orderCall import CallOrder
 from menu import Menu
 from os import getcwd, mkdir, path
 
-if not path.isdir('ДокументыПользователей//photos'):
-    mkdir("ДокументыПользователей//photos")
+if not path.isdir('ДокументыПользователей'):
+    mkdir("ДокументыПользователей")
+    if not path.isdir('ДокументыПользователей//photos'):
+        mkdir("ДокументыПользователей//photos")
 
 bot = telebot.TeleBot('7621236265:AAGs2_RbavfCZxKYQP2mLtiEYVTrcgzqNOk')
 db = sql.db('TDM.db')
@@ -20,7 +22,7 @@ orderCall = CallOrder(bot, db, menu)
 class Main:
     req_bool = False
     currentDir = getcwd()
-    @bot.message_handler(commands=['start', 'info', 'help','request'])
+    @bot.message_handler(commands=['start', 'info', 'help', 'request'])
     def commands(message):
         match message.text:
             case "/start":
@@ -33,7 +35,7 @@ class Main:
                 messages.help(message)
                 menu.showMainMenu(message)
             case "/request":
-                request.request(message)
+                Main.handleRequest(message)
             case _:
                 print("[log] Неизвестная команда")
 

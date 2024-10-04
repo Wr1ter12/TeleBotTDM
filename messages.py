@@ -27,6 +27,14 @@ infoMsg = """
 Адрес: Москва, ул.1-я Мытищинская, 28 c1
 """
 
+helpMsg = """Бот ТДМ предоставляет возможность:
+Оставить заявку, заказать звонок, и получить информацию о нас благодаря клавиатуре.
+Также можно использовать команды по типу:
+/start - для начала работы с ботом
+/info - для получения информации о нас
+/help - для краткой информации о пользовании ботом
+/request - для оформления заявки"""
+
 class Messages:
     def __init__(self, bot):
         self.bot = bot
@@ -42,7 +50,7 @@ class Messages:
         )
 
     def help(self, message):
-        self.bot.send_message(message.chat.id, "Помощь в пользовании ботом")
+        self.bot.send_message(message.chat.id, helpMsg)
 
     def usr_msg(self, message):
         print("[log] Текстовое сообщение: " + message.text)

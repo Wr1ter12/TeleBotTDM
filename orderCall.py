@@ -21,25 +21,4 @@ class CallOrder:
 
         self.bot.send_message(message.chat.id, "Спасибо! Ваш запрос на звонок принят.")
 
-    #1
-    def handleManualPhoneNumber(self, message):
-        userID = message.from_user.id
-        username = message.from_user.username
-        phoneNumber = message.text
-
-        self.db.phoneBook(userID, username, phoneNumber)
-        self.bot.send_message(chatID, f"Новый запрос на звонок от пользователя {message.from_user.first_name}: {phoneNumber}")
-
-        self.bot.send_message(message.chat.id, "Спасибо! Ваш запрос на звонок принят.")
-
-    def handleManualPhoneNumberByReq(self, message):
-        userID = message.from_user.id
-        username = message.from_user.username
-        phoneNumber = message.text
-
-        self.db.phoneBook(userID, username, phoneNumber)
-        self.bot.send_message(chatID, f"Новый запрос на звонок от пользователя {message.from_user.first_name}: {phoneNumber}")
-
-        self.bot.send_message(message.chat.id, "Спасибо! Ваш запрос на звонок принят.")
-
 
