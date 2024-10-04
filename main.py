@@ -12,9 +12,9 @@ db = sql.db('TDM.db')
 messages = Messages(bot)
 menu = Menu(bot)
 orderCall = CallOrder(bot, db, menu)
-request = Requests(bot, db, menu)
 
 class Main:
+    req_bool = False
     @bot.message_handler(commands=['start', 'info', 'help','request'])
     def commands(message):
         match message.text:
@@ -32,24 +32,48 @@ class Main:
             case _:
                 print("[log] Неизвестная команда")
 
+    @bot.message_handler(func=lambda message: message.text.lower() == 'оставить заявку')
+    def handleRequest(message):
+        Main.req_bool = True
+        msg = request.request(message)
+        bot.register_next_step_handler(msg, request.userName)
+
+    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15 )
+    def handleRequestSec(message):
+        msg = request.userPhoneNumber(message)
+
+    @bot.message_handler(func=lambda message: '@' in message.text.lower())
+    def handleRequestThr(message):
+        request.userEmail(message)
+
+    @bot.message_handler(func=lambda message: message.text.lower() == "Да" or message.text.lower() == "Нет" )
+    def handleRequestForth(message):
+        request.intProd(message)
+        Main.req_bool = False
+
+    @bot.message_handler(func=lambda message: message.text.lower() == "продукция" or message.text.lower() == "услуга")
+    def handleRequestFifth(message):
+        request.productsSelection(message)
+
     @bot.message_handler(func=lambda message: message.text.lower() == 'заказать звонок')
     def handleOrderCall(message):
         orderCall.handleOrderCall(message)
 
-    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15)
+    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15 )
     def handleManualPhoneNumber(message):
-        orderCall.handleManualPhoneNumber(message)
-        menu.showMainMenu(message)
+        if Main.req_bool == False:
+            orderCall.handleManualPhoneNumber(message)
+            menu.showMainMenu(message)
+        else:
+            Main.handleRequestSec(message)
 
     @bot.message_handler(content_types=['contact'])
     def handleContact(message):
-        orderCall.handleContact(message)
-        menu.showMainMenu(message)
-
-    @bot.message_handler(func=lambda message: message.text.lower() == 'оставить заявку')
-    def handleRequest(message):
-        msg = request.request(message)
-        bot.register_next_step_handler(msg, request.userName)
+        if Main.req_bool == False:
+            orderCall.handleContact(message)
+            menu.showMainMenu(message)
+        else:
+            Main.handleRequestSec(message)
 
     @bot.callback_query_handler(func=lambda call: True)
     def handleCallbackQuery(call):
@@ -76,6 +100,8 @@ class Main:
             case _:
                 messages.usr_msg(message)
         menu.showMainMenu(message)
+
+request = Requests(bot, db, menu, Main)
 
 if __name__ == '__main__':
     print("[log] Запуск готов")
