@@ -13,6 +13,7 @@ if not path.isdir('ДокументыПользователей'):
         mkdir("ДокументыПользователей//photos")
 
 bot = telebot.TeleBot('7621236265:AAGs2_RbavfCZxKYQP2mLtiEYVTrcgzqNOk')
+
 db = sql.db('TDM.db')
 
 messages = Messages(bot)
@@ -21,6 +22,7 @@ orderCall = CallOrder(bot, db, menu)
 
 class Main:
     req_bool = False
+    call_bool = False
     currentDir = getcwd()
     @bot.message_handler(commands=['start', 'info', 'help', 'request'])
     def commands(message):
@@ -45,7 +47,6 @@ class Main:
         msg = request.request(message)
         bot.register_next_step_handler(msg, request.userName)
 
-    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15 )
     def handleRequestSec(message):
         msg = request.userPhoneNumber(message)
 
@@ -56,7 +57,6 @@ class Main:
     @bot.message_handler(func=lambda message: message.text.lower() == "Да" or message.text.lower() == "Нет" )
     def handleRequestForth(message):
         request.intProd(message)
-        Main.req_bool = False
 
     @bot.message_handler(func=lambda message: message.text.lower() == "продукция" or message.text.lower() == "услуга")
     def handleRequestFifth(message):
@@ -88,13 +88,19 @@ class Main:
 
     @bot.message_handler(func=lambda message: message.text.lower() == 'заказать звонок')
     def handleOrderCall(message):
+        Main.call_bool = True
         orderCall.handleOrderCall(message)
 
-    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15 )
+    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15)
     def handleManualPhoneNumber(message):
         if Main.req_bool == False:
-            orderCall.handleManualPhoneNumber(message)
-            menu.showMainMenu(message)
+            if Main.call_bool == True:
+                orderCall.handleManualPhoneNumber(message)
+                menu.showMainMenu(message)
+                Main.call_bool = False
+            else:
+                bot.send_message(message.chat.id, "Не удалось обработать ваше сообщение, воспользуйтесь предоставленными функциями.")
+                menu.showMainMenu(message)
         else:
             Main.handleRequestSec(message)
 
@@ -103,6 +109,7 @@ class Main:
         if Main.req_bool == False:
             orderCall.handleContact(message)
             menu.showMainMenu(message)
+            Main.call_bool = False
         else:
             Main.handleRequestSec(message)
 
@@ -125,12 +132,12 @@ class Main:
             case 'о нас':
                 messages.info(message)
             case 'техническая поддержка':
-                messages.bot.send_message(message.chat.id, "Свяжитесь с нами по номеру +7 (495) 927 95 17.")
+                bot.send_message(message.chat.id, "Свяжитесь с нами по номеру +7 (495) 927 95 17.")
             case 'обратная связь':
-                messages.bot.send_message(message.chat.id, "Ваше сообщение отправлено! Мы свяжемся с вами.")
+                bot.send_message(message.chat.id, "Свяжитесь с нами по номеру +7 (495) 927 95 17.")
             case _:
                 if Main.req_bool == False:
-                    messages.bot.send_message(message.chat.id, "Не удалось обработать ваше сообщение, воспользуйтесь предоставленными функциями.")
+                    bot.send_message(message.chat.id, "Не удалось обработать ваше сообщение, воспользуйтесь предоставленными функциями.")
                 else:
                     messages.usr_msg(message)
         menu.showMainMenu(message)

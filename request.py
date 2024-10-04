@@ -77,9 +77,13 @@ class Requests:
             self.usrPhone = message.contact.phone_number
         else:    
             self.usrPhone = message.text
-        msg = self.bot.reply_to(message, "Введите ваш адрес электронной почты.")
-        self.bot.register_next_step_handler(msg, self.Main.handleRequestThr)
-
+        from re import match
+        if match(r'^\+?[1-9]\d{1,14}$', self.usrPhone) and len(self.usrPhone)>=7 and len(self.usrPhone)<=15: 
+            msg = self.bot.reply_to(message, "Введите ваш адрес электронной почты.")
+            self.bot.register_next_step_handler(msg, self.Main.handleRequestThr)
+        else:
+            self.bot.send_message(message.chat.id, "Неправильный формат номера телефона!")
+            
     def userEmail(self, message):
         self.usrEmail = message.text
         msg = self.bot.reply_to(message, "Являетесь ли вы нашим клиентом? (Да/Нет)")
@@ -103,16 +107,16 @@ class Requests:
             self.bot.register_next_step_handler(message, self.Main.handleRequestTypeOfServices)
 
         else:
-            self.bot.send_message(message.chat.id, "Что то пошло не по плану")
+            self.bot.send_message(message.chat.id, "Некорректный выбор!")
 
     def typeOfServices(self, message):
-        self.usrChoice += "Услуга: " + message.text
+        self.usrChoice = "Услуга: " + message.text
 
         self.bot.send_message(message.chat.id, "Хотите загрузить какой-либо файл? Например, техническую документацию или чертеж?")
         self.bot.register_next_step_handler(message, self.Main.handleRequestSendToObj)
        
     def productsCategories(self, message):
-        self.usrChoice += "Категория продукции: " + message.text
+        self.usrChoice = "Категория продукции: " + message.text
         
         self.bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)")
         self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking)
@@ -167,6 +171,7 @@ class Requests:
     def saveWishes(self, message):
         self.usrWishes = message.text
         self.db.requestDb(self.usrName, self.usrEmail, self.usrPhone, self.usrClient, self.usrChoice, self.usrNeedPack, self.usrSendToPlace, self.usrSendDate, self.usrReference, self.usrWishes)
+        self.Main.req_bool = False
 
 
 

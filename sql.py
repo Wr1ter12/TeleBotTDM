@@ -9,12 +9,18 @@ class db:
         self.connection.commit()
 
     def phoneBook(self, userID, username, phoneNumber):
-        self.cursor.execute("INSERT INTO phoneNumbers (userID, username, phoneNumber) VALUES (?, ?, ?)", (userID, username, phoneNumber))
-        self.connection.commit()
+        cursor = self.cursor.execute('SELECT * FROM phoneNumbers WHERE (userID=? AND username=? AND phoneNumber=?)', (userID, username, phoneNumber))
+        entry = cursor.fetchone()
+        if entry is None:
+            self.cursor.execute("INSERT INTO phoneNumbers (userID, username, phoneNumber) VALUES (?, ?, ?)", (userID, username, phoneNumber))
+            self.connection.commit()
 
     def requestDb(self, name, email, phone, client, choice, pack, send, sendDate, reference, wishes):
-        self.cursor.execute('INSERT INTO Users (name, email, phone, client, choice, pack, send, sendDate, reference, wishes) VALUES (?,?,?,?,?,?,?,?,?,?)', (name, email, phone, client, choice, pack, send, sendDate, reference, wishes))
-        self.connection.commit()
+        cursor = self.connection.execute('SELECT * FROM Users WHERE (name=? AND email=? AND phone=? AND client=? AND choice=? AND pack=? AND send=? AND sendDate=? AND reference=? AND wishes=?)', (name, email, phone, client, choice, pack, send, sendDate, reference, wishes))
+        entry = cursor.fetchone()
+        if entry is None:
+            self.cursor.execute('INSERT INTO Users (name, email, phone, client, choice, pack, send, sendDate, reference, wishes) VALUES (?,?,?,?,?,?,?,?,?,?)', (name, email, phone, client, choice, pack, send, sendDate, reference, wishes))
+            self.connection.commit()
 
         self.cursor.execute('SELECT * FROM Users')
         users = self.cursor.fetchall()
