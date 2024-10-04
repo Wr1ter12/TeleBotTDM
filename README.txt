@@ -17,3 +17,7 @@ Python file for processing applications.
 menu.py - Python file for working with keyboards and drop-down buttons.
 
 Async is an additional build of the Telegram bot that uses asynchronous sql functions.
+
+Использованные дополнительные библиотеки:
+Main: telebot, sqlite3
+Async: asyncio, aiosqlite
