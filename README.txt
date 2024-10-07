@@ -21,3 +21,4 @@ Async is an additional build of the Telegram bot that uses asynchronous sql func
 Использованные дополнительные библиотеки:
 Main: telebot, sqlite3
 Async: asyncio, aiosqlite
+(Есть в Requirements.txt) 
