@@ -1,4 +1,6 @@
+#Async version
 asyncio
 aiosqlite
+#Main version
 telebot
 sqlite3
