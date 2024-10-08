@@ -7,12 +7,14 @@ from orderCall import CallOrder
 from menu import Menu
 from os import getcwd, mkdir, path
 
+token = ''
+
 if not path.isdir('ДокументыПользователей'):
     mkdir("ДокументыПользователей")
     if not path.isdir('ДокументыПользователей//photos'):
         mkdir("ДокументыПользователей//photos")
 
-bot = telebot.TeleBot('7621236265:AAGs2_RbavfCZxKYQP2mLtiEYVTrcgzqNOk')
+bot = telebot.TeleBot(token)
 db = sql.db('TDM.db')
 messages = Messages(bot)
 menu = Menu(bot)
