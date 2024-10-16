@@ -5,24 +5,19 @@ from request import Requests
 from messages import Messages
 from orderCall import CallOrder
 from menu import Menu
-from os import getcwd, mkdir, path
 
-token = ''
+chatID = -1002332920843
 
-if not path.isdir('ДокументыПользователей'):
-    mkdir("ДокументыПользователей")
-    if not path.isdir('ДокументыПользователей//photos'):
-        mkdir("ДокументыПользователей//photos")
+bot = telebot.TeleBot('7621236265:AAGs2_RbavfCZxKYQP2mLtiEYVTrcgzqNOk')
 
-bot = telebot.TeleBot(token)
 db = sql.db('TDM.db')
+
 messages = Messages(bot)
 menu = Menu(bot)
-orderCall = CallOrder(bot, db, menu)
+orderCall = CallOrder(bot, db, menu, chatID)
 
 class Main:
     users = {}
-    currentDir = getcwd()
 
     def userAdd(userID):
         userID = str(userID)
@@ -86,9 +81,6 @@ class Main:
     
     def handleRequestSendDate(message):
         request.sendDate(message)
-
-    def handleRequestSendToObj(message):
-        request.saveFile(message)
 
     def handleRequestWishes(message):
         request.saveWishes(message)
@@ -154,7 +146,7 @@ class Main:
                     messages.usr_msg(message)
         menu.showMainMenu(message)
         
-request = Requests(bot, db, menu, Main)
+request = Requests(bot, db, menu, Main, chatID)
 
 from asyncio import run
 run(db.start())
