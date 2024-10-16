@@ -14,7 +14,7 @@ class CallOrder:
         phoneNumber = message.contact.phone_number
 
         self.db.phoneBook(userID, username, phoneNumber)
-        self.bot.send_message(chatID, f"Новый запрос на звонок от пользователя {message.from_user.first_name}: {phoneNumber}")
+        self.bot.send_message(self.chatID, f"Новый запрос на звонок от пользователя {message.from_user.first_name}: {phoneNumber}")
 
         self.bot.send_message(message.chat.id, "Спасибо! Ваш запрос на звонок принят.")
 
