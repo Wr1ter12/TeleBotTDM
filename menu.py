@@ -3,6 +3,8 @@ from telebot import types
 class Menu:
     def __init__(self, bot):
         self.bot = bot
+        self.yesNoKeyboard()
+        self.productServiceKeyboard()
     
     def showMainMenu(self, message):
         keyboard = types.InlineKeyboardMarkup()
@@ -22,3 +24,16 @@ class Menu:
 
         self.bot.send_message(message.chat.id, "Пожалуйста, отправьте ваш номер телефона", reply_markup=markup)
 
+    def yesNoKeyboard(self):
+        self.YNKeyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item1 = types.KeyboardButton(text='Да')
+        item2 = types.KeyboardButton(text='Нет')
+        self.YNKeyboard.add(item1)
+        self.YNKeyboard.add(item2)
+
+    def productServiceKeyboard(self):
+        self.PSKeyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item1 = types.KeyboardButton(text='Продукция')
+        item2 = types.KeyboardButton(text='Услуга')
+        self.PSKeyboard.add(item1)
+        self.PSKeyboard.add(item2) 
