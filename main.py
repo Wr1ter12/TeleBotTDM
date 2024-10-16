@@ -24,7 +24,7 @@ class Main:
         if userID not in Main.users.keys():
             Main.users[userID] = [False, False]
     
-    @bot.message_handler(commands=['start', 'info', 'help', 'request'])
+    @bot.message_handler(commands=['start', 'info', 'help', 'request', 'stop'])
     def commands(message):
         Main.userAdd(message.from_user.username)
         match message.text:
@@ -39,6 +39,9 @@ class Main:
                 menu.showMainMenu(message)
             case "/request":
                 Main.handleRequest(message)
+            case "/stop":
+                Main.users[str(message.from_user.username)][0] = False
+                menu.showMainMenu(message)
             case _:
                 print("[log] Неизвестная команда")
 
@@ -50,36 +53,76 @@ class Main:
         bot.register_next_step_handler(msg, request.userName)
 
     def handleRequestSec(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         msg = request.userPhoneNumber(message)
 
     @bot.message_handler(func=lambda message: '@' in message.text.lower())
     def handleRequestThr(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.userEmail(message)
 
     @bot.message_handler(func=lambda message: message.text.lower() == "Да" or message.text.lower() == "Нет" )
     def handleRequestForth(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.intProd(message)
 
     @bot.message_handler(func=lambda message: message.text.lower() == "продукция" or message.text.lower() == "услуга")
     def handleRequestFifth(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.productsSelection(message)
 
     def handleRequestTypeOfServices(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.typeOfServices(message)
 
     def handleRequestProductsCategories(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.productsCategories(message)
 
     def handleRequestNeedPacking(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.needPacking(message)
 
     def handleRequestNeedSend(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.needSend(message)
 
     def handleRequestSendAddress(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.sendAddress(message)
     
     def handleRequestSendDate(message):
+        if message.text == "/stop":
+            Main.users[str(message.from_user.username)][0] = False
+            menu.showMainMenu(message)
+            return
         request.sendDate(message)
 
     def handleRequestWishes(message):
