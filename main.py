@@ -21,13 +21,27 @@ class Main:
 
     def userAdd(userID):
         userID = str(userID)
-        if userID not in Main.users.keys():
+        if userID not in list(Main.users.keys()):
             Main.users[userID] = [False, False]
+
+    def stopCheck(func):
+        def wrapper(message, save=None):
+            if message.text == "/stop":
+                Main.userAdd(message.from_user.username)
+                Main.users[str(message.from_user.username)][0] = False
+                bot.send_message(message.chat.id, "Оформление заявки успешно отменено!")
+                menu.showMainMenu(message)
+                return
+            if save == None:
+                return func(message)
+            else:
+                return func(message, save)
+        return wrapper
     
     @bot.message_handler(commands=['start', 'info', 'help', 'request', 'stop'])
     def commands(message):
         Main.userAdd(message.from_user.username)
-        match message.text:
+        match message.text.lower():
             case "/start":
                 messages.start(message)
                 menu.showMainMenu(message)
@@ -46,87 +60,102 @@ class Main:
                 print("[log] Неизвестная команда")
 
     @bot.message_handler(func=lambda message: message.text.lower() == 'оставить заявку')
-    def handleRequest(message):
+    def handleRequest(message, save):
         Main.userAdd(message.from_user.username)
         Main.users[str(message.from_user.username)][0] = True
         msg = request.request(message)
-        bot.register_next_step_handler(msg, request.userName)
+        bot.register_next_step_handler(msg, request.userName, save)
 
+    @stopCheck
     def handleRequestSec(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        msg = request.userPhoneNumber(message)
+        msg = request.userPhoneNumber(message, False)
 
-    @bot.message_handler(func=lambda message: '@' in message.text.lower())
+    @bot.message_handler(func=lambda message: match(r'^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$', message.text))
+    @stopCheck
     def handleRequestThr(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.userEmail(message)
+        request.userEmail(message, False)
 
-    @bot.message_handler(func=lambda message: message.text.lower() == "Да" or message.text.lower() == "Нет" )
+    @stopCheck
     def handleRequestForth(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.intProd(message)
+        request.intProd(message, False)
 
-    @bot.message_handler(func=lambda message: message.text.lower() == "продукция" or message.text.lower() == "услуга")
+    @stopCheck
     def handleRequestFifth(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.productsSelection(message)
+        request.productsSelection(message, False)
 
+    @stopCheck
     def handleRequestTypeOfServices(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.typeOfServices(message)
+        request.typeOfServices(message, False)
 
+    @stopCheck
     def handleRequestProductsCategories(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.productsCategories(message)
+        request.productsCategories(message, False)
 
+    @stopCheck
     def handleRequestNeedPacking(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.needPacking(message)
+        request.needPacking(message, False)
 
+    @stopCheck
     def handleRequestNeedSend(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.needSend(message)
+        request.needSend(message, False)
 
+    @stopCheck
     def handleRequestSendAddress(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.sendAddress(message)
-    
-    def handleRequestSendDate(message):
-        if message.text == "/stop":
-            Main.users[str(message.from_user.username)][0] = False
-            menu.showMainMenu(message)
-            return
-        request.sendDate(message)
+        request.sendAddress(message, False)
 
-    def handleRequestWishes(message):
-        request.saveWishes(message)
+    @stopCheck
+    def handleRequestSendDate(message):
+        request.sendDate(message, False)
+
+    @stopCheck
+    def handleRequestWishes(message, save):
+        request.saveWishes(message, save)
+        
+    def handleRequestConfirmation(message):
+        request.saveRequest(message)
+
+    def handleRequestModification(message):
+        if message.content_type != 'text':
+            self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
+            if request.usrNeedPack == " ":
+                bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=menu.rsKeyboard)
+                bot.register_next_step_handler(message, self.Main.handleRequestSendDate)
+            else:
+                if request.usrSendToPlace == " ":
+                    bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=menu.rpKeyboard)
+                else:
+                    bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=menu.rpsKeyboard)
+            return
+        match message.text.lower():
+            case "имя":
+                Main.handleRequest(message, True)
+            case "телефон":
+                handleOrderCall(message)
+                bot.register_next_step_handler(message, Main.handleRequestSec, True)
+            case "почта":
+                msg = bot.reply_to(message, "Введите ваш адрес электронной почты.")
+                bot.register_next_step_handler(msg, Main.handleRequestThr, True)
+            case "клиент":
+                msg = bot.reply_to(message, "Являетесь ли вы нашим клиентом? (Да/Нет)", reply_markup=menu.YNKeyboard)
+                bot.register_next_step_handler(msg, Main.handleRequestForth, True)
+            case "категория":
+                msg = bot.reply_to(message, "Что вас интересует: продукция или услуга?", reply_markup=self.menu.PSKeyboard)
+                bot.register_next_step_handler(msg, Main.handleRequestFifth, True)
+            case "упаковка":
+                bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)", reply_markup=menu.YNKeyboard)
+                bot.register_next_step_handler(message, Main.handleRequestNeedPacking, True)
+            case "адрес доставки":
+                bot.send_message(message.chat.id, "Введите адрес доставки:")
+                bot.register_next_step_handler(message, Main.handleRequestSendAddress, True)
+            case "дата доставки":
+                bot.send_message(message.chat.id, "Введите дату доставки:")
+                bot.register_next_step_handler(message, Main.handleRequestSendDate, True)
+            case "комментарии":
+                bot.send_message(message.chat.id, "Вы можете ввести пожелания или комментарии")
+                bot.register_next_step_handler(message, Main.handleRequestWishes, True)
+            case _:
+                bot.send_message(message.chat.id, "Некорректный ввод!")
+                request.saveWishes(message, True)
 
     @bot.message_handler(func=lambda message: message.text.lower() == 'заказать звонок')
     def handleOrderCall(message):
@@ -134,9 +163,10 @@ class Main:
         Main.users[str(message.from_user.username)][1] = True
         orderCall.handleOrderCall(message)
 
-    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=7 and len(message.text)<=15)
+    @bot.message_handler(func=lambda message: match(r'^\+?[1-9]\d{1,14}$', message.text) and len(message.text)>=11 and len(message.text)<=12)
     def handleManualPhoneNumber(message):
         Main.userAdd(message.from_user.username)
+        Main.users[str(message.from_user.username)][1] = True
         if Main.users[str(message.from_user.username)][0] == False:
             if Main.users[str(message.from_user.username)][1] == True:
                 orderCall.handleManualPhoneNumber(message)
@@ -162,7 +192,7 @@ class Main:
     def handleCallbackQuery(call):
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
         if call.data == 'leave_request':
-            Main.handleRequest(call.message)
+            Main.handleRequest(call.message, False)
         elif call.data == 'order_call':
             Main.handleOrderCall(call.message)
         elif call.data == 'information':
