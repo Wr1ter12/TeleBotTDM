@@ -67,48 +67,48 @@ class Main:
         bot.register_next_step_handler(msg, request.userName, save)
 
     @stopCheck
-    def handleRequestSec(message):
-        msg = request.userPhoneNumber(message, False)
+    def handleRequestSec(message, save=False):
+        msg = request.userPhoneNumber(message, save)
 
     @bot.message_handler(func=lambda message: match(r'^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$', message.text))
     @stopCheck
-    def handleRequestThr(message):
-        request.userEmail(message, False)
+    def handleRequestThr(message, save=False):
+        request.userEmail(message, save)
 
     @stopCheck
-    def handleRequestForth(message):
-        request.intProd(message, False)
+    def handleRequestForth(message, save=False):
+        request.intProd(message, save)
 
     @stopCheck
-    def handleRequestFifth(message):
-        request.productsSelection(message, False)
+    def handleRequestFifth(message, save=False):
+        request.productsSelection(message, save)
 
     @stopCheck
-    def handleRequestTypeOfServices(message):
-        request.typeOfServices(message, False)
+    def handleRequestTypeOfServices(message, save=False):
+        request.typeOfServices(message, save)
 
     @stopCheck
-    def handleRequestProductsCategories(message):
-        request.productsCategories(message, False)
+    def handleRequestProductsCategories(message, save=False):
+        request.productsCategories(message, save)
 
     @stopCheck
-    def handleRequestNeedPacking(message):
-        request.needPacking(message, False)
+    def handleRequestNeedPacking(message, save=False):
+        request.needPacking(message, save)
 
     @stopCheck
-    def handleRequestNeedSend(message):
-        request.needSend(message, False)
+    def handleRequestNeedSend(message, save=False):
+        request.needSend(message, save)
 
     @stopCheck
-    def handleRequestSendAddress(message):
+    def handleRequestSendAddress(message, save=False):
         request.sendAddress(message, False)
 
     @stopCheck
-    def handleRequestSendDate(message):
+    def handleRequestSendDate(message, save=False):
         request.sendDate(message, False)
 
     @stopCheck
-    def handleRequestWishes(message, save):
+    def handleRequestWishes(message, save=False):
         request.saveWishes(message, save)
         
     def handleRequestConfirmation(message):
@@ -116,21 +116,19 @@ class Main:
 
     def handleRequestModification(message):
         if message.content_type != 'text':
-            self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
+            bot.send_message(message.chat.id, "Неправильный формат ответа!")
             if request.usrNeedPack == " ":
                 bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=menu.rsKeyboard)
-                bot.register_next_step_handler(message, self.Main.handleRequestSendDate)
+                bot.register_next_step_handler(message, Main.handleRequestSendDate)
             else:
-                if request.usrSendToPlace == " ":
-                    bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=menu.rpKeyboard)
-                else:
                     bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=menu.rpsKeyboard)
             return
         match message.text.lower():
             case "имя":
-                Main.handleRequest(message, True)
+                msg = bot.reply_to(message, "Введите ваше имя.")
+                bot.register_next_step_handler(msg, request.userName, True)
             case "телефон":
-                handleOrderCall(message)
+                Main.handleOrderCall(message)
                 bot.register_next_step_handler(message, Main.handleRequestSec, True)
             case "почта":
                 msg = bot.reply_to(message, "Введите ваш адрес электронной почты.")
@@ -139,7 +137,7 @@ class Main:
                 msg = bot.reply_to(message, "Являетесь ли вы нашим клиентом? (Да/Нет)", reply_markup=menu.YNKeyboard)
                 bot.register_next_step_handler(msg, Main.handleRequestForth, True)
             case "категория":
-                msg = bot.reply_to(message, "Что вас интересует: продукция или услуга?", reply_markup=self.menu.PSKeyboard)
+                msg = bot.reply_to(message, "Что вас интересует: продукция или услуга?", reply_markup=menu.PSKeyboard)
                 bot.register_next_step_handler(msg, Main.handleRequestFifth, True)
             case "упаковка":
                 bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)", reply_markup=menu.YNKeyboard)
@@ -152,7 +150,7 @@ class Main:
                 bot.register_next_step_handler(message, Main.handleRequestSendDate, True)
             case "комментарии":
                 bot.send_message(message.chat.id, "Вы можете ввести пожелания или комментарии")
-                bot.register_next_step_handler(message, Main.handleRequestWishes, True)
+                bot.register_next_step_handler(message, Main.handleRequestWishes, False)
             case _:
                 bot.send_message(message.chat.id, "Некорректный ввод!")
                 request.saveWishes(message, True)

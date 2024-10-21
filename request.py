@@ -77,10 +77,10 @@ class Requests:
             return
         self.usrName = message.text
         if save == True:
-            self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+            self.Main.handleRequestWishes(message, True)
             return
         self.Main.handleOrderCall(message)
-        self.bot.register_next_step_handler(message, self.Main.handleRequestSec)
+        self.bot.register_next_step_handler(message, self.Main.handleRequestSec, save)
 
     def userPhoneNumber(self, message, save):
         if message.content_type == 'text' or message.content_type == 'contact':
@@ -91,7 +91,7 @@ class Requests:
             if match(r'^\+?[1-9]\d{1,14}$', self.usrPhone) and len(self.usrPhone)>=11 and len(self.usrPhone)<=12:
                 if self.usrPhone.startswith("8") or self.usrPhone.startswith("7") or self.usrPhone.startswith("+7"):
                     if save == True:
-                        self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+                        self.Main.handleRequestWishes(message, True)
                         return
                     msg = self.bot.reply_to(message, "Введите ваш адрес электронной почты.")
                     self.bot.register_next_step_handler(msg, self.Main.handleRequestThr)
@@ -99,40 +99,40 @@ class Requests:
                     self.usrPhone = " "
                     self.bot.send_message(message.chat.id, "Неправильный формат номера телефона!")
                     self.Main.handleOrderCall(message)
-                    self.bot.register_next_step_handler(message, self.Main.handleRequestSec)
+                    self.bot.register_next_step_handler(message, self.Main.handleRequestSec, save)
             else:
                 self.usrPhone = " "
                 self.bot.send_message(message.chat.id, "Неправильный формат номера телефона!")
                 self.Main.handleOrderCall(message)
-                self.bot.register_next_step_handler(message, self.Main.handleRequestSec)
+                self.bot.register_next_step_handler(message, self.Main.handleRequestSec, save)
         else:
             self.bot.send_message(message.chat.id, "Неправильный формат номера телефона!")
             self.Main.handleOrderCall(message)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestSec)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestSec, save)
                 
     def userEmail(self, message, save):
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат почты!")
             msg = self.bot.reply_to(message, "Введите ваш адрес электронной почты.")
-            self.bot.register_next_step_handler(msg, self.Main.handleRequestThr)
+            self.bot.register_next_step_handler(msg, self.Main.handleRequestThr, save)
             return
         if match(r"^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", message.text):
             self.usrEmail = message.text
             if save == True:
-                self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+                self.Main.handleRequestWishes(message, True)
                 return
             msg = self.bot.reply_to(message, "Являетесь ли вы нашим клиентом? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
             self.bot.register_next_step_handler(msg, self.Main.handleRequestForth)
         else:
             self.bot.send_message(message.chat.id, "Неправильный формат почты!")
             msg = self.bot.reply_to(message, "Введите ваш адрес электронной почты.")
-            self.bot.register_next_step_handler(msg, self.Main.handleRequestThr)
+            self.bot.register_next_step_handler(msg, self.Main.handleRequestThr, save)
 
     def intProd(self, message, save):
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             msg = self.bot.reply_to(message, "Являетесь ли вы нашим клиентом? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
-            self.bot.register_next_step_handler(msg, self.Main.handleRequestForth)
+            self.bot.register_next_step_handler(msg, self.Main.handleRequestForth, save)
             return
         if message.text.lower() == "да":
             self.usrClient = "Да"
@@ -141,10 +141,10 @@ class Requests:
         else:
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             msg = self.bot.reply_to(message, "Являетесь ли вы нашим клиентом? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
-            self.bot.register_next_step_handler(msg, self.Main.handleRequestForth)
+            self.bot.register_next_step_handler(msg, self.Main.handleRequestForth, save)
             return
         if save == True:
-            self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+            self.Main.handleRequestWishes(message, True)
             return
         msg = self.bot.reply_to(message, "Что вас интересует: продукция или услуга?", reply_markup=self.menu.PSKeyboard)
         self.bot.register_next_step_handler(msg, self.Main.handleRequestFifth)
@@ -153,47 +153,54 @@ class Requests:
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Некорректный формат ответа!")
             msg = self.bot.reply_to(message, "Что вас интересует: продукция или услуга?", reply_markup=self.menu.PSKeyboard)
-            self.bot.register_next_step_handler(msg, self.Main.handleRequestFifth)
+            self.bot.register_next_step_handler(msg, self.Main.handleRequestFifth, save)
         msg = message.text
         if msg.lower() == "продукция":
             self.bot.send_message(message.chat.id, productsMsg)
             self.bot.send_message(message.chat.id, "Введите номер категории продукции:", reply_markup=self.menu.pKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestProductsCategories)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestProductsCategories, save)
         elif msg.lower() == "услуга":
             self.bot.send_message(message.chat.id, servicesMsg)
             self.bot.send_message(message.chat.id, "Введите номер категории услуги:", reply_markup=self.menu.sKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestTypeOfServices)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestTypeOfServices, save)
         else:
             self.bot.send_message(message.chat.id, "Некорректный выбор!")
             msg = self.bot.reply_to(message, "Что вас интересует: продукция или услуга?", reply_markup=self.menu.PSKeyboard)
-            self.bot.register_next_step_handler(msg, self.Main.handleRequestFifth)
+            self.bot.register_next_step_handler(msg, self.Main.handleRequestFifth, save)
 
     def typeOfServices(self, message, save):
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, servicesMsg)
             self.bot.send_message(message.chat.id, "Введите номер категории услуги:", reply_markup=self.menu.sKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestTypeOfServices)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestTypeOfServices, save)
             return
         
         self.usrChoice = "Услуга: " + message.text
         if save == True:
-            self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+            self.usrNeedPack = " "
+            self.usrSendToPlace = " "
+            self.usrSendDate = " "
+            self.Main.handleRequestWishes(message, True)
             return
         self.bot.send_message(message.chat.id, "Вы можете ввести пожелания или комментарии")
-        self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, False)
+        self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, save)
 
     def productsCategories(self, message, save):
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, productsMsg)
             self.bot.send_message(message.chat.id, "Введите номер категории продукции:", reply_markup=self.menu.pKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestProductsCategories)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestProductsCategories, save)
             return
         
         self.usrChoice = "Категория продукции: " + message.text
         if save == True:
-            self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+            if self.usrNeedPack == "":
+                self.Main.handleRequestWishes(message, True)
+            else:
+                self.bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
+                self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking, save)
             return
         self.bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
         self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking)
@@ -202,7 +209,7 @@ class Requests:
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking, save)
             return
         if message.text.lower() == "да":
             self.usrNeedPack = "Да"
@@ -211,10 +218,10 @@ class Requests:
         else:
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, "Нужна ли упаковка? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedPacking, save)
             return
         if save == True:
-            self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+            self.Main.handleRequestWishes(message, True)
             return
         self.bot.send_message(message.chat.id, "Нужна ли доставка на объект? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
         self.bot.register_next_step_handler(message, self.Main.handleRequestNeedSend)
@@ -223,31 +230,35 @@ class Requests:
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, "Нужна ли доставка на объект? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedSend)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedSend, save)
             return
         if message.text.lower() == "да":
             self.bot.send_message(message.chat.id, "Введите адрес доставки:")
-            self.bot.register_next_step_handler(message, self.Main.handleRequestSendAddress)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestSendAddress, save)
         elif message.text.lower() == "нет":
             if save == True:
-                self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+                self.Main.handleRequestWishes(message, True)
                 return
             self.bot.send_message(message.chat.id, "Вы можете ввести пожелания или комментарии")
             self.bot.register_next_step_handler(message, self.Main.handleRequestWishes)
         else:
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, "Нужна ли доставка на объект? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
-            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedSend)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestNeedSend, save)
 
     def sendAddress(self, message, save):
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, "Введите адрес доставки:")
-            self.bot.register_next_step_handler(message, self.Main.handleRequestSendAddress)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestSendAddress, save)
             return
         self.usrSendToPlace = message.text
         if save == True:
-            self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+            if self.usrSendDate != " ":
+                self.Main.handleRequestWishes(message, True)
+            else:
+                self.bot.send_message(message.chat.id, "Введите дату доставки:")
+                self.bot.register_next_step_handler(message, self.Main.handleRequestSendDate, save)
             return
         self.bot.send_message(message.chat.id, "Введите дату доставки:")
         self.bot.register_next_step_handler(message, self.Main.handleRequestSendDate)
@@ -256,11 +267,11 @@ class Requests:
         if message.content_type != 'text':
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")
             self.bot.send_message(message.chat.id, "Введите дату доставки:")
-            self.bot.register_next_step_handler(message, self.Main.handleRequestSendDate)
+            self.bot.register_next_step_handler(message, self.Main.handleRequestSendDate, save)
             return
         self.usrSendDate = message.text
         if save == True:
-            self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, True)
+            self.Main.handleRequestWishes(message, True)
             return
         self.bot.send_message(message.chat.id, "Вы можете ввести пожелания или комментарии")
         self.bot.register_next_step_handler(message, self.Main.handleRequestWishes, False)
@@ -277,10 +288,7 @@ class Requests:
         if self.usrNeedPack == " ":
             self.bot.send_message(message.chat.id, "Имя: " + self.usrName + "\nТелефон: " + self.usrPhone + "\nПочта: " + self.usrEmail + "\nКлиент: " + self.usrClient + "\n" + self.usrChoice + "\nКомментарии: " + self.usrWishes)
         else:
-            if self.usrSendToPlace == " ":
-                self.bot.send_message(message.chat.id, "Имя: " + self.usrName + "\nТелефон: " + self.usrPhone + "\nПочта: " + self.usrEmail + "\nКлиент: " + self.usrClient + "\n" + self.usrChoice + "\nУпаковка: " + self.usrNeedPack + "\nКомментарии: " + self.usrWishes)
-            else:
-                self.bot.send_message(message.chat.id, "Имя: " + self.usrName + "\nТелефон: " + self.usrPhone + "\nПочта: " + self.usrEmail + "\nКлиент: " + self.usrClient + "\n" + self.usrChoice + "\nУпаковка: " + self.usrNeedPack + "\nАдрес Доставки: " + self.usrSendToPlace + "\nДата доставки: " + self.usrSendDate + "\nКомментарии: " + self.usrWishes)
+            self.bot.send_message(message.chat.id, "Имя: " + self.usrName + "\nТелефон: " + self.usrPhone + "\nПочта: " + self.usrEmail + "\nКлиент: " + self.usrClient + "\n" + self.usrChoice + "\nУпаковка: " + self.usrNeedPack + "\nАдрес Доставки: " + self.usrSendToPlace + "\nДата доставки: " + self.usrSendDate + "\nКомментарии: " + self.usrWishes)
         self.bot.send_message(message.chat.id, "Вы подтверждаете отправку заявки? (Да/Нет)", reply_markup=self.menu.YNKeyboard)
         self.bot.register_next_step_handler(message, self.Main.handleRequestConfirmation)
         
@@ -300,10 +308,7 @@ class Requests:
             if self.usrNeedPack == " ":
                 self.bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=self.menu.rsKeyboard)
             else:
-                if self.usrSendToPlace == " ":
-                    self.bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=self.menu.rpKeyboard)
-                else:
-                    self.bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=self.menu.rpsKeyboard)
+                self.bot.send_message(message.chat.id, "Введите номер поля для изменения:", reply_markup=self.menu.rpsKeyboard)
             self.bot.register_next_step_handler(message, self.Main.handleRequestModification)
         else:
             self.bot.send_message(message.chat.id, "Неправильный формат ответа!")

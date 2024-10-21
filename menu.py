@@ -8,7 +8,6 @@ class Menu:
         self.productsKeyboard()
         self.servicesKeyboard()
         self.requestServiceKeyboard()
-        self.requestProductKeyboard()
         self.requestProductSendKeyboard()
     
     def showMainMenu(self, message):
@@ -100,19 +99,6 @@ class Menu:
         item6 = types.KeyboardButton(text='Комментарии')
         self.rsKeyboard.add(item1, item2, item3)
         self.rsKeyboard.add(item4, item5, item6)
-        
-    def requestProductKeyboard(self):
-        self.rpKeyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item1 = types.KeyboardButton(text='Имя')
-        item2 = types.KeyboardButton(text='Телефон')
-        item3 = types.KeyboardButton(text='Почта')
-        item4 = types.KeyboardButton(text='Клиент')
-        item5 = types.KeyboardButton(text='Категория')
-        item6 = types.KeyboardButton(text='Упаковка')
-        item7 = types.KeyboardButton(text='Комментарии')
-        self.rpKeyboard.add(item1, item2, item3)
-        self.rpKeyboard.add(item4, item5, item6)
-        self.rpKeyboard.add(item7)
         
     def requestProductSendKeyboard(self):
         self.rpsKeyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
